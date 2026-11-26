@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maths FAQs &amp; Competency Questions</title>
+<style>
+:root{--bg:#070b19;--tx:#e8ecff;--mut:#9aa6d0;--ac:#4cc9f0;--ok:#7dffb0;--bad:#ff6b81;--gl:rgba(255,255,255,.07);--bd:rgba(255,255,255,.16);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:680px;margin:auto;padding:14px 14px 40px}
+h1{font-size:20px;margin:4px 0 2px;text-shadow:0 0 14px var(--ac)}h1 b{color:var(--ac)}
+h2{font-size:17px;color:var(--ac);margin:18px 0 8px}
+.sub{color:var(--mut);margin:0 0 10px;font-size:13px}
+.glass{background:var(--gl);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--bd);border-radius:14px;box-shadow:0 0 24px rgba(76,201,240,.1)}
+#bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:linear-gradient(var(--bg) 70%,transparent);padding:6px 0 8px}
+#chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}#chips::-webkit-scrollbar{display:none}
+button{font:inherit;color:var(--tx);background:var(--gl);border:1px solid var(--bd);border-radius:999px;padding:6px 12px;white-space:nowrap;cursor:pointer}
+button:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+button.on{background:var(--ac);color:#04101f;border-color:var(--ac);box-shadow:0 0 14px var(--ac)}
+details{padding:10px 14px;margin:8px 0}summary{cursor:pointer;font-weight:600}details p{margin:8px 0 0;color:var(--mut)}
+.q{padding:12px 14px;margin:10px 0}.q p{margin:0 0 8px;font-weight:600}
+.o{display:block;width:100%;text-align:left;border-radius:10px;margin:6px 0;white-space:normal}
+.o.ok{border-color:var(--ok);background:rgba(125,255,176,.15)}.o.no{border-color:var(--bad);background:rgba(255,107,129,.15)}
+.ex{margin:8px 0 0;color:var(--mut);font-size:14px}
+#sc{float:right;font-size:13px;color:var(--ok)}
+#rs{margin-top:20px;display:block}
+</style></head><body><main>
+<div id="bar"><h1>Maths <b>FAQs</b> &amp; competency questions</h1><p class="sub">CBSE Class 10 · pick a chapter, tap an answer <span id="sc"></span></p><div id="chips"></div></div>
+<h2>Frequently asked</h2><div id="faq"></div>
+<h2>Competency questions</h2><div id="qz"></div>
+<button id="rs">Reset all scores</button>
+</main>
+<script>
+const D=[
+['Real Numbers',[['What does Euclid’s division lemma say?','For positive integers a and b, there exist unique q and r with a = bq + r and 0 ≤ r < b.'],['How are HCF and LCM related?','For two positive integers, HCF × LCM = product of the two numbers.']],[['Two bells ring every 12 and 18 minutes and ring together at 9:00. When do they next ring together?',['9:24','9:36','9:30','9:18'],1,'LCM(12, 18) = 36 minutes, so 9:36.'],['Why is 7 × 11 × 13 + 13 a composite number?',['It equals 13 × 78, so it has more than two factors','It ends in 3','It is a sum of primes','It has exactly two factors'],0,'Taking 13 common gives 13 × (77 + 1) = 13 × 78.']]],
+['Polynomials',[['How many zeroes can a polynomial of degree n have?','At most n zeroes.'],['What are the sum and product of zeroes of ax² + bx + c?','Sum = −b/a and product = c/a.']],[['The zeroes of x² − 5x + 6 are…',['2 and 3','−2 and −3','1 and 6','−1 and −6'],0,'(x − 2)(x − 3) = 0. Sum 5 = −(−5)/1 and product 6 = 6/1.'],['The graph of a quadratic touches the x-axis at exactly one point. How many distinct zeroes?',['0','1','2','3'],1,'It touches at one point, so the zero is repeated (discriminant = 0).']]],
+['Pair of Linear Equations',[['When does a pair of linear equations have no solution?','When a₁/a₂ = b₁/b₂ ≠ c₁/c₂ (parallel lines).'],['When are there infinitely many solutions?','When a₁/a₂ = b₁/b₂ = c₁/c₂ (coincident lines).']],[['2 pens and 1 notebook cost ₹25; 1 pen and 1 notebook cost ₹20. Price of a pen?',['₹3','₹5','₹10','₹15'],1,'Subtract: (2p + n) − (p + n) = 25 − 20, so p = 5.'],['For what k do 2x + 3y = 5 and 4x + 6y = k have infinitely many solutions?',['5','8','10','12'],2,'Ratios 2/4 = 3/6 = 5/k need k = 10.']]],
+['Quadratic Equations',[['How does the discriminant tell the nature of roots?','D > 0: two distinct real roots; D = 0: equal real roots; D < 0: no real roots.'],['What is the quadratic formula?','x = [−b ± √(b² − 4ac)] / 2a.']],[['A rectangular plot has area 528 m². Its length is one more than twice its breadth. Breadth?',['12 m','14 m','16 m','18 m'],2,'b(2b + 1) = 528 gives 2b² + b − 528 = 0, so b = 16 (length 33).'],['Nature of roots of 2x² − 4x + 3 = 0?',['Two distinct real','Two equal real','No real roots','Cannot say'],2,'D = 16 − 24 = −8 < 0.']]],
+['Arithmetic Progressions',[['What is the nth term of an AP?','aₙ = a + (n − 1)d.'],['What is the sum of n terms?','Sₙ = n/2 [2a + (n − 1)d] = n/2 (a + l).']],[['Savings start at ₹500 and rise by ₹100 every month. Savings in the 12th month?',['₹1500','₹1600','₹1700','₹1800'],1,'a₁₂ = 500 + 11 × 100 = 1600.'],['Sum of the first 20 natural numbers?',['200','205','210','420'],2,'S₂₀ = 20/2 × (1 + 20) = 210.']]],
+['Triangles',[['State the Basic Proportionality (Thales) theorem.','A line parallel to one side of a triangle divides the other two sides in the same ratio.'],['What is the ratio of areas of similar triangles?','The square of the ratio of corresponding sides.']],[['Similar triangles have sides in ratio 2 : 3. Ratio of their areas?',['2 : 3','4 : 9','3 : 2','8 : 27'],1,'Areas are in the ratio of squares: 2² : 3² = 4 : 9.'],['A 6 m pole casts a 4 m shadow. At the same time a tower casts a 24 m shadow. Tower height?',['16 m','30 m','36 m','40 m'],2,'Similar triangles: h/24 = 6/4, so h = 36.']]],
+['Coordinate Geometry',[['What is the distance formula?','√[(x₂ − x₁)² + (y₂ − y₁)²].'],['What is the section formula for ratio m : n?','((mx₂ + nx₁)/(m + n), (my₂ + ny₁)/(m + n)).']],[['Distance between (3, 4) and (0, 0)?',['3','4','5','7'],2,'√(9 + 16) = 5.'],['Midpoint of (2, −3) and (6, 5)?',['(4, 1)','(8, 2)','(2, 4)','(4, −1)'],0,'((2 + 6)/2, (−3 + 5)/2) = (4, 1).']]],
+['Introduction to Trigonometry',[['What is the value of sin²θ + cos²θ?','Always 1.'],['What are the ratios at 45°?','sin 45° = cos 45° = 1/√2 and tan 45° = 1.']],[['If sin A = 3/5 (A acute), cos A = ?',['4/5','3/4','5/3','5/4'],0,'Use the 3-4-5 triangle: base 4, hypotenuse 5.'],['tan 60° × tan 30° = ?',['0','1','√3','1/√3'],1,'√3 × 1/√3 = 1.']]],
+['Applications of Trigonometry',[['What is the angle of elevation?','The angle between the horizontal and the line of sight to an object above it.'],['What is the angle of depression?','The angle between the horizontal and the line of sight to an object below it.']],[['From a point 30 m from a tower’s foot, the angle of elevation of its top is 45°. Height?',['15 m','30 m','30√3 m','60 m'],1,'tan 45° = h/30 = 1, so h = 30.'],['A 10 m ladder makes 60° with the ground. How high does it reach on the wall?',['5 m','5√3 m','10 m','10√3 m'],1,'Height = 10 sin 60° = 5√3 m.']]],
+['Circles',[['How many tangents can be drawn from an external point?','Two, and they are equal in length.'],['How is a tangent related to the radius?','The tangent is perpendicular to the radius at the point of contact.']],[['A tangent from P is 12 cm long and P is 13 cm from the centre. Radius?',['5 cm','6 cm','7 cm','25 cm'],0,'r² = 13² − 12² = 25, so r = 5.'],['Tangents PA and PB meet at P with ∠APB = 60°. Triangle PAB is…',['Isosceles, not equilateral','Equilateral','Right-angled','Scalene'],1,'PA = PB, so the base angles are (180° − 60°)/2 = 60°.']]],
+['Areas Related to Circles',[['What is the area of a sector with angle θ?','(θ/360°) × πr².'],['What is the length of an arc with angle θ?','(θ/360°) × 2πr.']],[['A minute hand is 14 cm long. Area swept in 30 minutes? (π = 22/7)',['154 cm²','308 cm²','616 cm²','196 cm²'],1,'Half a circle: ½ × 22/7 × 14² = 308.'],['Length of a 90° arc in a circle of radius 14 cm? (π = 22/7)',['11 cm','22 cm','44 cm','88 cm'],1,'¼ × 2 × 22/7 × 14 = 22.']]],
+['Surface Areas and Volumes',[['What is the volume of a cone?','⅓πr²h.'],['What stays the same when a solid is melted and recast?','Its volume.']],[['A solid sphere of radius 3 cm is melted into spheres of radius 1 cm. How many?',['3','9','27','81'],2,'Volume ratio = (3/1)³ = 27.'],['A tent is a cylinder topped by a cone. Canvas needed equals…',['Volume of cylinder + cone','CSA of cylinder + CSA of cone','TSA of both solids','Volume of the cone only'],1,'Canvas covers only the curved surfaces: no base, no joined face.']]],
+['Statistics',[['What is the empirical relation between mean, median and mode?','Mode = 3 Median − 2 Mean.'],['Which graph is used to find the median of grouped data?','The cumulative frequency curve (ogive).']],[['Median = 20 and mean = 22. Estimated mode?',['16','18','20','24'],0,'3(20) − 2(22) = 16.'],['Which graph helps read the median of grouped data?',['Histogram','Frequency polygon','Ogive','Bar graph'],2,'The intersection of the less-than and more-than ogives gives the median.']]],
+['Probability',[['What is the range of probability?','From 0 (impossible event) to 1 (sure event).'],['What is the formula for probability?','P(E) = favourable outcomes / total possible outcomes.']],[['A bag has 3 red and 5 blue marbles. P(red)?',['3/5','3/8','5/8','1/3'],1,'3 favourable out of 8 total.'],['Two coins are tossed. P(at least one head)?',['1/4','1/2','3/4','1'],2,'HH, HT, TH are favourable out of 4: 3/4.']]]
+];
+const $=s=>document.querySelector(s),el=(t,x,c)=>{const e=document.createElement(t);if(x)e.textContent=x;if(c)e.className=c;return e};
+let ci=0,ans={};
+function score(){const n=Object.keys(ans).length,r=Object.values(ans).filter(Boolean).length;$('#sc').textContent=n?'Score '+r+'/'+n:''}
+function show(i){ci=i;const c=D[i];
+$('#chips').innerHTML='';D.forEach((d,k)=>{const b=el('button',(k+1)+'. '+d[0],k==i?'on':'');b.onclick=()=>{show(k);scrollTo({top:0})};$('#chips').append(b)});
+$('#faq').innerHTML='';c[1].forEach(([q,a])=>{const d=el('details','','glass'),s=el('summary',q);d.append(s,el('p',a));$('#faq').append(d)});
+$('#qz').innerHTML='';c[2].forEach(([q,o,k,x],n)=>{const key=i+'-'+n,b=el('div','','q glass');b.append(el('p',q));const ex=el('p','','ex');
+const lock=p=>{[...b.querySelectorAll('.o')].forEach((e,j)=>{e.disabled=true;if(j==k)e.classList.add('ok');else if(j==p)e.classList.add('no')});ex.textContent=(p==k?'Correct. ':'Not quite. ')+x};
+o.forEach((t,j)=>{const e=el('button',t,'o');e.onclick=()=>{ans[key]=j==k;lock(j);score()};b.append(e)});b.append(ex);
+if(key in ans)lock(ans[key]?k:-1);$('#qz').append(b)});score()}
+$('#rs').onclick=()=>{ans={};show(ci)};
+show(0);
+</script></body></html>
