@@ -1,130 +1,534 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Smart Explorer &amp; Lab</title>
+<!doctype html>
+<html lang="en">
+<head><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#F7F3EB" />
+<title>Class 10 Smart Explorer – 3D CBSE Study Website by Vangala Sai Varshith</title>
+<meta name="description" content="Class 10 Smart Explorer is an interactive 3D study website for CBSE Class 10 Physics, Chemistry, Biology and Social Studies with easy revision notes. Created by Vangala Sai Varshith (V. Sai Varshith)." />
+<meta name="author" content="Vangala Sai Varshith" />
+<meta name="keywords" content="Vangala Sai Varshith, V. Sai Varshith, Sai Varshith, Class 10 Smart Explorer, Smart Explorer & Lab, CBSE Class 10, 3D study website, class 10 notes" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Class 10 Smart Explorer","creator":{"@type":"Person","name":"Vangala Sai Varshith","alternateName":"V. Sai Varshith"}}</script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <style>
-:root{--bg:#070b19;--tx:#e8ecff;--ac:#4cc9f0;--gl:rgba(255,255,255,.07);--bd:rgba(255,255,255,.16);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
-.glass{background:var(--gl);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--bd);box-shadow:0 0 24px rgba(76,201,240,.14)}
-#top{position:fixed;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top,0px) + 8px) 10px 4px;background:linear-gradient(var(--bg) 55%,transparent)}
-.logo{font-weight:700;font-size:16px;letter-spacing:.4px;text-shadow:0 0 14px var(--ac)}.logo b{color:var(--ac)}
-.row{display:flex;gap:6px;overflow-x:auto;padding:6px 0 0;scrollbar-width:none}.row::-webkit-scrollbar{display:none}
-button{font:inherit;color:var(--tx);background:var(--gl);border:1px solid var(--bd);border-radius:999px;padding:6px 12px;white-space:nowrap;cursor:pointer}
-button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
-button.on{background:var(--ac);color:#04101f;border-color:var(--ac);box-shadow:0 0 14px var(--ac)}
-#ctl{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 118px);display:flex;flex-direction:column;gap:6px}
-#ctl button{font-size:12px;padding:6px 10px}
-#info{position:fixed;left:10px;right:10px;bottom:calc(68px + env(safe-area-inset-bottom,0px));max-width:560px;margin:auto;padding:10px 14px;border-radius:16px;max-height:38vh;overflow:auto}
-#info h3{margin:0 0 2px;font-size:15px;color:var(--ac)}#info p{margin:0}
-ul{margin:8px 0 0;padding-left:18px}li{margin:3px 0}
-#nav{position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom,0px));max-width:560px;margin:auto;display:flex;gap:4px;border-radius:18px;padding:4px}
-#nav button{flex:1;border:0;background:none;border-radius:14px;padding:9px 2px;font-size:12px}
-#nav button.on{background:var(--ac)}
-</style></head><body>
-<canvas></canvas>
-<header id="top"><div class="logo">Smart Explorer <b>&amp;</b> Lab</div><div class="row" id="subs"></div><div class="row" id="vars"></div></header>
-<div id="ctl"><button id="ar" class="on">Auto-rotate</button><button id="rv">Reset view</button><button id="nt">Simple notes</button></div>
-<section id="info" class="glass"><h3 id="it"></h3><p id="id"></p><ul id="notes" hidden></ul></section>
-<nav id="nav" class="glass"></nav>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script>
-const T=Math.PI,$=s=>document.querySelector(s),V=(x,y,z)=>new THREE.Vector3(x,y,z),hx=c=>'#'+c.toString(16).padStart(6,'0');
-const PL=[0x4cc9f0,0xffd166,0xff6b81,0x7dffb0,0xb892ff,0xffa94d];
-const R=new THREE.WebGLRenderer({canvas:$('canvas'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.setClearColor(0x070b19);
-const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(50,1,.1,100),O=new THREE.OrbitControls(C,R.domElement);
-O.enableDamping=true;O.autoRotate=true;O.autoRotateSpeed=1.2;O.minDistance=3;O.maxDistance=26;
-S.add(new THREE.AmbientLight(0xffffff,.65));const L=new THREE.DirectionalLight(0xffffff,.9);L.position.set(4,6,5);S.add(L);
-let G,nodes=[];
-const SG=new THREE.SphereGeometry(1,12,9),MC={},BM={};
-const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.45,metalness:.1},o)),mat=c=>MC[c]||(MC[c]=M(c)),bm=c=>BM[c]||(BM[c]=new THREE.MeshBasicMaterial({color:c}));
-const P3=a=>a.isVector3?a:V(...a);
-const add=(m,p)=>{p&&m.position.set(...p);G.add(m);return m};
-const ball=(r,c,p,o)=>{const m=add(new THREE.Mesh(SG,o?M(c,o):mat(c)),p);m.scale.setScalar(r);return m};
-const box=(w,h,d,c,p)=>add(new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c)),p);
-function rod(a,b,c,r=.05){a=P3(a);b=P3(b);const d=b.clone().sub(a),m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),6),bm(c));m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(V(0,1,0),d.normalize());G.add(m)}
-function arr(p,d,c,s=.15){const m=new THREE.Mesh(new THREE.ConeGeometry(s*.6,s*1.8,8),bm(c));m.position.copy(p);m.quaternion.setFromUnitVectors(V(0,1,0),d.clone().normalize());G.add(m)}
-function vec(a,b,c,w=.05){a=P3(a);b=P3(b);const d=b.clone().sub(a).normalize();rod(a,b.clone().addScaledVector(d,-.25),c,w);arr(b.clone().addScaledVector(d,-.18),d,c,.2)}
-function tube(p,c,r=.03,cl=false,ar=true){const cv=new THREE.CatmullRomCurve3(p.map(q=>V(...q)),cl);G.add(new THREE.Mesh(new THREE.TubeGeometry(cv,p.length*4+12,r,6,cl),bm(c)));ar&&arr(cv.getPointAt(.5),cv.getTangentAt(.5),c,r*5+.1)}
-const ring=(f,c,r=.025)=>tube(Array.from({length:14},(_,i)=>f(2*T*i/14)),c,r,true);
-function lab(t,p,c='#fff',s=.85){const k=document.createElement('canvas');k.width=320;k.height=64;const x=k.getContext('2d');x.font='bold 26px system-ui,sans-serif';x.textAlign='center';x.fillStyle=c;x.shadowColor=c;x.shadowBlur=8;x.fillText(t,160,40);const m=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(k),transparent:true,depthTest:false}));m.scale.set(3*s,.6*s,1);return add(m,p)}
-function node(m,t,x){m.userData={t,x,s:m.scale.clone()};nodes.push(m);return m}
-/* magnetism */
-function magnet(hs,h){box(hs,h,h,0xe63946,[hs/2,0,0]);box(hs,h,h,0x3a86ff,[-hs/2,0,0]);lab('N',[hs+.35,0,0],'#ff6b81');lab('S',[-hs-.35,0,0],'#6ea8ff')}
-function field(hs){[.7,1.3,1.9].forEach(k=>[0,1,2,3].forEach(r=>{const p=[],A=hs+.25*k,f=r*T/2;for(let i=0;i<=14;i++){const t=T*i/14,y=k*Math.sin(t);p.push([A*Math.cos(t),y*Math.cos(f),y*Math.sin(f)])}tube(p,0x4cc9f0,.022)}));[-.25,0,.25].forEach(y=>vec([-hs,y,0],[hs,y,0],0x4cc9f0,.02))}
-/* molecules */
-const EL={C:[.4,0x6b7280],H:[.25,0xe8ecff]};
-function mol(a,b,sc=1.4){const P=a.map(([e,x,y,z])=>V(x*sc,y*sc,z*sc));a.forEach(([e],i)=>ball(...EL[e],P[i].toArray()));b.forEach(([i,j,n])=>{const d=P[j].clone().sub(P[i]).normalize();let q=d.clone().cross(V(0,0,1));if(q.length()<.1)q=V(0,1,0);q.normalize();for(let k=0;k<n;k++){const o=q.clone().multiplyScalar((k-(n-1)/2)*.22);rod(P[i].clone().add(o),P[j].clone().add(o),0xb8c4ff,.045);ball(.07,0xffd166,P[i].clone().add(P[j]).multiplyScalar(.5).add(o).toArray(),{emissive:0xffd166})}})}
-function cage(P,d,c,r,rr){P.forEach(p=>ball(r,c,p.toArray()));for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++)if(P[i].distanceTo(P[j])<d)rod(P[i],P[j],0x9fb0ff,rr)}
-const A=s=>s.split(' ').map(x=>[x[0],...x.slice(1).split(',').map(Number)]),B=s=>s.split(' ').map(x=>[+x[0],+x[1],+x[2]||1]);
-const hc=(a,b,l)=>()=>{mol(A(a),B(b));lab(l,[0,-2.3,0],'#ffd166')};
-const ll=(la,lo,r)=>{la*=T/180;lo*=T/180;return[r*Math.cos(la)*Math.sin(lo),r*Math.sin(la),r*Math.cos(la)*Math.cos(lo)]};
+  :root { --bg:#070b19; --glass:rgba(14,22,46,.58); --border:rgba(148,180,255,.16); --text:#e6ecff; --muted:#94a3c4; --accent:#38bdf8; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--text); font-family:Geist,system-ui,sans-serif; overflow:hidden; -webkit-font-smoothing:antialiased; }
+  #stage { position:fixed; inset:0; }
+  #stage canvas { display:block; touch-action:none; }
+  .glass { background:var(--glass); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border:1px solid var(--border); border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05); }
+  button { font:inherit; color:inherit; cursor:pointer; }
+  .btn { display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,.04); font-size:13px; font-weight:500; transition:all .2s; white-space:nowrap; }
+  .btn:hover { background:rgba(255,255,255,.08); }
+  .btn:focus-visible, .chip:focus-visible, .subj:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .btn[aria-pressed="true"] { border-color:var(--accent); color:#fff; box-shadow:0 0 18px -4px var(--accent); background:color-mix(in srgb, var(--accent) 16%, transparent); }
+  .btn svg { width:16px; height:16px; flex:none; }
+  header.top { position:fixed; top:12px; left:12px; right:12px; display:flex; align-items:center; gap:12px; padding:10px 14px; z-index:10; }
+  .brand { display:flex; align-items:center; gap:10px; min-width:0; }
+  .mark { width:30px; height:30px; border-radius:50%; border:2px solid var(--accent); box-shadow:0 0 16px var(--accent), inset 0 0 10px var(--accent); flex:none; transition:all .4s; }
+  .brand h1 { font-size:15px; margin:0; font-weight:650; letter-spacing:.2px; }
+  .brand p { font-size:11.5px; color:var(--muted); margin:2px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tools { margin-left:auto; display:flex; gap:8px; }
+  #topics { position:fixed; top:76px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px; z-index:9; max-width:calc(100% - 24px); }
+  .chips { display:flex; gap:6px; padding:5px; overflow-x:auto; max-width:100%; scrollbar-width:none; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chips.small { padding:4px; }
+  .chip { white-space:nowrap; padding:7px 13px; border-radius:9px; border:1px solid transparent; background:transparent; font-size:13px; color:var(--muted); transition:all .2s; }
+  .chips.small .chip { font-size:12px; padding:5px 11px; }
+  .chip:hover { color:var(--text); }
+  .chip[aria-pressed="true"] { color:#fff; background:color-mix(in srgb, var(--accent) 22%, transparent); border-color:color-mix(in srgb, var(--accent) 60%, transparent); box-shadow:0 0 14px -4px var(--accent); }
+  #info { position:fixed; left:12px; top:170px; width:340px; max-height:calc(100% - 270px); overflow:auto; padding:16px; z-index:8; transition:max-height .3s; scrollbar-width:thin; }
+  .info-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .tag { font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--accent); font-weight:600; }
+  #info h2 { font-size:19px; margin:8px 0 6px; line-height:1.25; }
+  #info p.desc { font-size:13.5px; line-height:1.55; color:#c7d2ee; margin:0 0 12px; }
+  #legend { list-style:none; padding:0; margin:0 0 12px; display:grid; gap:6px; }
+  #legend li { display:flex; align-items:center; gap:8px; font-size:12.5px; color:#c7d2ee; }
+  #legend i { width:10px; height:10px; border-radius:50%; flex:none; box-shadow:0 0 8px currentColor; }
+  .mini-card { border:1px solid var(--border); background:rgba(255,255,255,.03); border-radius:12px; padding:10px 12px; font-size:12.5px; line-height:1.5; color:#c7d2ee; margin-bottom:8px; }
+  .mini-card b { color:#fff; }
+  .mini-card table { width:100%; border-collapse:collapse; margin:6px 0; }
+  .mini-card td { padding:3px 0; border-bottom:1px solid var(--border); }
+  .mini-card small { color:var(--muted); }
+  .mini-card.eq { font-size:13.5px; color:#fff; text-align:center; font-weight:600; }
+  .mini-card.eq span { display:block; font-size:11.5px; font-weight:400; color:var(--muted); margin:2px 0; }
+  #detail { border-left:3px solid var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent); border-radius:10px; padding:10px 12px; margin:4px 0 12px; font-size:13px; line-height:1.5; }
+  #detail h3 { margin:0 0 4px; font-size:14px; color:#fff; }
+  #detail p { margin:0; color:#d7e0f7; }
+  .hint-inline { font-size:12px; color:var(--muted); margin:0 0 12px; }
+  .notes-btn { width:100%; justify-content:center; }
+  .icon-btn { width:30px; height:30px; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,.04); display:none; align-items:center; justify-content:center; }
+  #notes { position:fixed; right:12px; top:170px; width:330px; max-height:calc(100% - 270px); overflow:auto; padding:16px; z-index:8; transform:translateX(calc(100% + 24px)); transition:transform .4s cubic-bezier(.2,.8,.2,1); }
+  #notes.open { transform:none; }
+  #notes h3 { margin:0; font-size:16px; }
+  #notes .sub { font-size:12px; color:var(--muted); margin:2px 0 12px; }
+  #notesList { margin:0; padding:0; list-style:none; display:grid; gap:8px; counter-reset:n; }
+  #notesList li { position:relative; padding:9px 10px 9px 36px; font-size:13px; line-height:1.5; background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:10px; counter-increment:n; }
+  #notesList li::before { content:counter(n); position:absolute; left:10px; top:9px; width:18px; height:18px; border-radius:50%; background:var(--accent); color:#070b19; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .tip { font-size:12px; color:var(--muted); margin:12px 0 0; }
+  nav.subjects { position:fixed; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:4px; padding:5px; z-index:10; max-width:calc(100% - 16px); }
+  .subj { display:flex; align-items:center; gap:8px; padding:9px 16px; border-radius:11px; border:1px solid transparent; background:transparent; color:var(--muted); font-size:13.5px; font-weight:550; transition:all .25s; }
+  .subj svg { width:18px; height:18px; flex:none; }
+  .subj:hover { color:var(--text); }
+  .subj[aria-pressed="true"] { color:#fff; background:color-mix(in srgb, var(--c) 20%, transparent); border-color:color-mix(in srgb, var(--c) 55%, transparent); box-shadow:0 0 20px -6px var(--c); }
+  .subj[aria-pressed="true"] svg { color:var(--c); }
+  #hint { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); padding:8px 14px; font-size:12px; color:#c7d2ee; z-index:7; white-space:nowrap; pointer-events:none; }
+  #loader { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; background:var(--bg); z-index:50; transition:opacity .6s; }
+  #loader .ring { width:46px; height:46px; border-radius:50%; border:3px solid rgba(56,189,248,.2); border-top-color:#38bdf8; animation:spin 1s linear infinite; }
+  #loader p { color:var(--muted); font-size:13px; margin:0; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  @media (max-width: 760px) {
+    header.top { top:8px; left:8px; right:8px; padding:8px 10px; gap:8px; }
+    .brand p { display:none; }
+    .brand h1 { font-size:14px; }
+    .mark { width:24px; height:24px; }
+    .btn .lbl { display:none; }
+    .btn { padding:8px; }
+    #topics { top:60px; width:calc(100% - 16px); }
+    .chip { font-size:12px; padding:6px 10px; }
+    #info { left:8px; right:8px; width:auto; top:auto; bottom:96px; max-height:34vh; padding:12px 14px; }
+    #info.collapsed { max-height:54px; overflow:hidden; }
+    #info.collapsed .info-body { visibility:hidden; }
+    #info h2 { font-size:16px; margin:4px 0; }
+    .icon-btn { display:inline-flex; }
+    .icon-btn svg { transition:transform .3s; }
+    #info.collapsed .icon-btn svg { transform:rotate(180deg); }
+    #notes { left:8px; right:8px; width:auto; top:auto; bottom:96px; max-height:52vh; transform:translateY(calc(100% + 110px)); z-index:11; }
+    .subj { padding:8px 10px; font-size:12px; gap:6px; flex-direction:column; }
+    .subj svg { width:17px; height:17px; }
+    #hint { display:none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+</style>
+<link rel="stylesheet" href="./theme.css" />
+</head>
+<body>
+<div id="loader" role="status"><div class="ring"></div><p>Loading 3D explorer…</p></div>
+<div id="stage" aria-label="Interactive 3D scene. Drag to rotate, scroll or pinch to zoom." role="img"></div>
 
-const D=[
-{n:'Physics',i:'🧲',s:[
-{n:'Bar magnet',N:['Field lines: N→S outside the magnet, S→N inside; closed loops','Lines never cross; closer lines mean a stronger field','A compass needle aligns along the field line'],v:[['','Outside N→S, inside S→N. Red arrows are compass needles.',()=>{magnet(1.5,.6);field(1.5);[.5,1.3,2.2].forEach(t=>{const k=1.3,a=1.5+.25*k,p=V(a*Math.cos(t),k*Math.sin(t),0);ball(.1,0xcfd8ff,p.toArray());arr(p,V(-a*Math.sin(t),k*Math.cos(t),0),0xff5a5f,.3)});lab('Compass needles',[0,-2.3,0],'#ff6b81')}]]},
-{n:'Wire · loop · solenoid',N:['Straight wire: concentric circular field lines; Right-Hand Thumb Rule (thumb = current, curled fingers = field)','Field grows with current and weakens with distance','Circular loop: lines near the centre are nearly straight; n turns give n times the field','Solenoid field is like a bar magnet; a soft-iron core makes an electromagnet'],v:[
-['Wire','Right-Hand Thumb Rule: thumb along the current, curled fingers show the field direction.',()=>{vec([0,-2.2,0],[0,2.2,0],0xffd166,.07);lab('I (thumb)',[.9,2.4,0],'#ffd166');lab('B (fingers)',[0,-2.7,0],'#4cc9f0');[-1,0,1].forEach(y=>[.8,1.4].forEach(r=>ring(t=>[r*Math.cos(t),y,-r*Math.sin(t)],0x4cc9f0)))}],
-['Loop','Field lines pass through the centre of the loop in one direction.',()=>{ring(t=>[1.1*Math.cos(t),0,-1.1*Math.sin(t)],0xffd166,.05);vec([0,-2.1,0],[0,2.1,0],0x4cc9f0,.03);[1,-1].forEach(s=>[.5,.9].forEach(r=>ring(t=>[s*1.1-s*r*Math.cos(t),r*Math.sin(t),0],0x4cc9f0,.02)));lab('I',[1.6,.4,0],'#ffd166');lab('B through centre',[0,2.6,0],'#4cc9f0')}],
-['Solenoid','A coil of many turns acts like a bar magnet: uniform field inside, N and S ends.',()=>{const p=[];for(let i=0;i<=96;i++){const a=i/96*T*16;p.push([-1.6+3.2*i/96,.6*Math.cos(a),.6*Math.sin(a)])}tube(p,0xffd166,.04,false,false);field(1.6);lab('N',[2.3,0,0],'#ff6b81');lab('S',[-2.3,0,0],'#6ea8ff')}]]},
-{n:'Force & circuit',N:['Force on a current-carrying conductor is greatest when I ⟂ B','Fleming’s Left-Hand Rule: First finger = field, middle finger = current, thumb = force (used in motors)','Domestic supply: Live (red), Neutral (black), Earth (green)','Fuse melts on overload or short circuit; Earth wire gives leakage current a safe path'],v:[
-['Force','Field B, current I and force F are mutually perpendicular (Fleming’s Left-Hand Rule).',()=>{box(.6,1.8,3,0xe63946,[-2.6,0,0]);box(.6,1.8,3,0x3a86ff,[2.6,0,0]);lab('N',[-2.6,1.3,0],'#ff6b81');lab('S',[2.6,1.3,0],'#6ea8ff');vec([-2.2,0,-1.2],[2.2,0,-1.2],0x4cc9f0);vec([0,0,-1.6],[0,0,1.6],0xffd166,.07);vec([0,0,0],[0,1.9,0],0x2ecc71);lab('B · first finger',[0,-.6,-1.2],'#4cc9f0');lab('I · middle finger',[0,-1.2,1.4],'#ffd166');lab('F · thumb',[0,2.4,0],'#2ecc71')}],
-['Circuit','Live brings current, Neutral returns it, Earth is the safety path. The fuse sits on the Live wire.',()=>{[['Live',1,0xe63946],['Neutral',0,0x6ea8ff],['Earth',-1,0x2ecc71]].forEach(([n,y,c])=>{rod([-2,y,0],[1.8,y,0],c,.06);lab(n,[-2.6,y,0],hx(c),.7)});box(.5,.3,.3,0xffd166,[-.6,1,0]);lab('Fuse',[-.6,1.5,0],'#ffd166',.7);box(1.1,2.6,.9,0x2b3560,[2.4,0,0]);lab('Appliance',[2.4,1.9,0],'#fff',.7)}]]}]},
-{n:'Chemistry',i:'⚗️',s:[
-{n:'Hydrocarbons',N:['Covalent bond = sharing of electron pairs (yellow dots); carbon is tetravalent','CH₄ single bonds; C₂H₆ C–C; C₂H₄ C=C; C₂H₂ C≡C','Alkanes CₙH₂ₙ₊₂ are saturated; alkenes CₙH₂ₙ and alkynes CₙH₂ₙ₋₂ are unsaturated'],v:[
-['CH₄','Methane: 4 single bonds, 4 shared pairs, tetrahedral.',hc('C0,0,0 H.63,.63,.63 H-.63,-.63,.63 H-.63,.63,-.63 H.63,-.63,-.63','01 02 03 04','Methane CH₄')],
-['C₂H₆','Ethane: one C–C single bond plus 6 C–H bonds.',hc('C-.77,0,0 C.77,0,0 H-1.15,1.03,0 H-1.15,-.51,.89 H-1.15,-.51,-.89 H1.15,1.03,0 H1.15,-.51,.89 H1.15,-.51,-.89','01 02 03 04 15 16 17','Ethane C₂H₆')],
-['C₂H₄','Ethene: C=C double bond (2 shared pairs).',hc('C-.67,0,0 C.67,0,0 H-1.24,.93,0 H-1.24,-.93,0 H1.24,.93,0 H1.24,-.93,0','012 02 03 14 15','Ethene C₂H₄')],
-['C₂H₂','Ethyne: C≡C triple bond (3 shared pairs).',hc('C-.6,0,0 C.6,0,0 H-1.66,0,0 H1.66,0,0','013 02 13','Ethyne C₂H₂')]]},
-{n:'Allotropes',N:['Diamond: each C bonded to 4 others in a rigid 3D network; hardest, non-conductor','Graphite: hexagonal layers with weak forces between them; slippery and conducts electricity','Fullerene C₆₀: 60 carbon atoms in a soccer-ball cage (20 hexagons, 12 pentagons)'],v:[
-['Diamond','Rigid tetrahedral network: every carbon has four bonds.',()=>{const a=1.7,P=[];for(let i=0;i<2;i++)for(let j=0;j<2;j++)for(let k=0;k<2;k++)[[0,0,0],[0,.5,.5],[.5,0,.5],[.5,.5,0]].forEach(o=>[0,.25].forEach(h=>P.push(V((i+o[0]+h)*a-1.5,(j+o[1]+h)*a-1.5,(k+o[2]+h)*a-1.5))));cage(P,.8,0x7dd3fc,.16,.035)}],
-['Graphite','Layers of hexagonal sheets; weak forces let layers slide.',()=>{const b=.75,s=Math.sqrt(3)*b,P=[];[-1,0,1].forEach(l=>{for(let i=-1;i<3;i++)for(let j=-1;j<3;j++)[0,b].forEach(o=>P.push(V(s*(i+j/2)-.97,l,1.5*b*j+o-.94+(l==0?b:0))))});cage(P,b*1.1,0x94a3b8,.1,.03);lab('Weak forces between layers',[0,-1.8,0],'#ffd166')}],
-['C₆₀','Buckminsterfullerene: a hollow cage of 60 carbon atoms.',()=>{const f=(1+Math.sqrt(5))/2,K=new Set(),P=[];[[0,1,3*f],[1,2+f,2*f],[f,2,2*f+1]].forEach(b=>{for(let s=0;s<8;s++){const p=b.map((v,i)=>v*(s>>i&1?-1:1));[[0,1,2],[1,2,0],[2,0,1]].forEach(c=>{const q=c.map(k=>p[k]),key=q.map(v=>Math.round(v*100)).join();if(!K.has(key)){K.add(key);P.push(V(...q).multiplyScalar(.42))}})}});cage(P,.9,0x4cc9f0,.1,.03)}]]},
-{n:'Soap & micelle',N:['Catenation: carbon links to itself in chains, branches and rings','Tetravalency gives a huge number of compounds; homologous series differ by –CH₂– (14 u)','Soap: sodium or potassium salt of a fatty acid; hydrophilic head, hydrophobic tail','Micelle: tails trap oil inside, heads face water, so dirt is washed away; hard water forms scum'],v:[
-['Catenation','Carbon forms long chains and rings (tetravalency + catenation).',()=>{const a=A('C-3,1,0 C-2.1,1.6,0 C-1.2,1,0 C-.3,1.6,0 C.6,1,0 C1.5,1.6,0').concat([...Array(6)].map((_,i)=>['C',1.1*Math.cos(i*T/3),-1.3+1.1*Math.sin(i*T/3),0]));mol(a,[[0,1,1],[1,2,1],[2,3,1],[3,4,1],[4,5,1],...[...Array(6)].map((_,i)=>[6+i,6+(i+1)%6,1])],1);lab('Open chain',[-.7,2.4,0],'#ffd166');lab('Closed ring',[0,-3,0],'#ffd166')}],
-['Micelle','Soap molecules surround dirt: tails inside, heads outside in water.',()=>{ball(.7,0xffd166,[0,0,0],{transparent:true,opacity:.55});for(let i=0;i<24;i++){const y=1-2*(i+.5)/24,r=Math.sqrt(1-y*y),a=i*2.4,d=V(r*Math.cos(a),y,r*Math.sin(a));rod(d.clone().multiplyScalar(.5),d.clone().multiplyScalar(1.25),0xffa94d,.04);ball(.17,0x4cc9f0,d.clone().multiplyScalar(1.45).toArray())}lab('Hydrophilic head',[0,2.2,0],'#4cc9f0');lab('Hydrophobic tail',[0,-2.2,0],'#ffa94d');lab('Oil / dirt',[0,0,0],'#fff',.6)}]]}]},
-{n:'Biology',i:'🧬',s:[
-{n:'Nutrition',N:['6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (sunlight, chlorophyll)','CO₂ enters through stomata; water comes from roots; happens in chloroplasts','Gut: mouth → oesophagus → stomach → small intestine → large intestine','Amylase (saliva), pepsin and HCl (stomach), bile emulsifies fats'],v:[
-['Photosynthesis','Light energy becomes chemical energy stored in glucose.',()=>{ball(1,0x2ecc71,[0,0,0]).scale.set(2.2,.12,1.2);ball(.55,0xffd166,[-2.6,2.1,0],{emissive:0xffd166});vec([-2.2,1.8,0],[-.8,.3,0],0xffd166);vec([2.6,1.8,0],[.9,.3,0],0x9aa6d0);vec([0,-2.4,0],[0,-.3,0],0x4cc9f0);vec([.8,.2,.5],[2.6,.7,.5],0x7ee8fa);lab('Sunlight',[-2.2,2.8,0],'#ffd166');lab('CO₂ in',[2.2,2.4,0],'#cbd5ff');lab('H₂O from roots',[0,-2.8,0],'#4cc9f0');lab('O₂ out',[2,.1,.5],'#7ee8fa');for(let i=0;i<8;i++)ball(.12,0x7dffb0,[-1.4+i*.4,.15,(i%3-1)*.3],{emissive:0x2ecc71})}],
-['Gut','Human alimentary canal: digestion and absorption of food.',()=>{tube([[0,2.6,0],[.1,1.5,0]],0xff8fa3,.1,false,false);ball(.8,0xff6b81,[.4,.9,0]).scale.set(.8,.55,.45);tube(Array.from({length:9},(_,i)=>[i%2?.8:-.8,.1-i*.2,0]),0xffb3c1,.07);tube([[-1.2,-1.6,0],[-1.2,.3,0],[1.2,.3,0],[1.2,-1.6,0],[.3,-2.4,0]],0xc77d6b,.1,false,false);lab('Mouth → oesophagus',[0,3.1,0]);lab('Stomach',[1.7,1.1,0],'#ff6b81',.7);lab('Small intestine',[0,-.7,.6],'#ffb3c1',.7);lab('Large intestine',[0,-2.9,0],'#c77d6b')}]]},
-{n:'Respiration',N:['Aerobic: glucose → CO₂ + H₂O + about 38 ATP (mitochondria)','Anaerobic: yeast → ethanol + CO₂; muscles → lactic acid (about 2 ATP)','Alveoli have thin walls and rich capillaries for diffusion of gases'],v:[
-['Energy','Aerobic breakdown releases far more ATP than anaerobic.',()=>{[[-2,'Aerobic',0x2ecc71,12,'~38 ATP','CO₂ + H₂O'],[2,'Anaerobic',0xb892ff,2,'2 ATP','Lactic acid / ethanol']].forEach(([x,n,c,k,t,p])=>{ball(.4,0xffa94d,[x,2,0]);vec([x,1.5,0],[x,.3,0],c);for(let i=0;i<k;i++)ball(.14,0xffd166,[x+(i%4-1.5)*.35,-.2-Math.floor(i/4)*.35,0],{emissive:0xffd166});lab(n,[x,2.8,0],hx(c));lab(t,[x,-1.3,0],'#ffd166');lab(p,[x,-1.9,0],'#cbd5ff',.7)});lab('Glucose',[0,2,0],'#ffa94d',.7)}],
-['Alveoli','Gas exchange: O₂ diffuses into blood, CO₂ diffuses out.',()=>{tube([[0,2.6,0],[0,.8,0]],0xffb3c1,.1,false,false);for(let i=0;i<8;i++){const a=i*T/4;ball(.55,0xff8fa3,[Math.cos(a)*.9,.1,Math.sin(a)*.9],{transparent:true,opacity:.55})}ring(t=>[1.5*Math.cos(t),.1,1.5*Math.sin(t)],0xe63946,.06);vec([-.5,2.2,0],[-.5,.5,0],0x7ee8fa,.03);vec([.5,.5,0],[.5,2.2,0],0x9aa6d0,.03);lab('O₂ in',[-1.5,2.2,0],'#7ee8fa',.7);lab('CO₂ out',[1.6,2.2,0],'#cbd5ff',.7);lab('Capillary',[0,-1.9,0],'#e63946',.7)}]]},
-{n:'Transport',N:['Heart has 4 chambers; double circulation = pulmonary + systemic','Right side carries deoxygenated blood, left side oxygenated; they never mix','Xylem carries water upward (transpiration pull); phloem carries food both ways (translocation, uses ATP)'],v:[
-['Heart','Blue = deoxygenated, red = oxygenated; double circulation through lungs and body.',()=>{[['RA',-.8,.6,0x3a86ff],['RV',-.7,-.7,0x3a86ff],['LA',.8,.6,0xe63946],['LV',.8,-.7,0xe63946]].forEach(([n,x,y,c])=>{ball(.65,c,[x,y,0]);lab(n,[x,y,.8],'#fff',.6)});ball(1,0xff8fa3,[0,2.7,0]).scale.set(1.8,.5,.4);ball(1,0xb892ff,[0,-2.9,0]).scale.set(1.8,.3,.4);tube([[-.8,-1.3,.4],[-1.8,0,.4],[-.6,2.3,.4]],0x3a86ff,.07);tube([[.6,2.3,.4],[1.8,0,.4],[.8,1.2,.4]],0xe63946,.07);tube([[.8,-1.3,-.4],[1.9,-1.8,-.4],[.8,-2.8,-.4]],0xe63946,.07);tube([[-.8,-2.8,-.4],[-1.9,-1.8,-.4],[-1.8,.6,-.4],[-.8,.9,-.4]],0x3a86ff,.07);lab('Lungs',[2.1,2.7,0],'#ffb3c1',.7);lab('Body',[2.1,-2.9,0],'#b892ff',.7)}],
-['Plant','Xylem moves water up; phloem moves food down.',()=>{add(new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,4.4,12),M(0x2ecc71,{transparent:true,opacity:.2})));vec([-.25,-2,0],[-.25,2,0],0x4cc9f0,.06);vec([.25,2,0],[.25,-2,0],0xffa94d,.06);[-1,1].forEach(s=>{ball(1,0x2ecc71,[s*1.1,2.3,0]).scale.set(.9,.15,.5);rod([0,-2.2,0],[s*1.3,-3,0],0xb08968,.06)});lab('Xylem: water ↑',[-1.9,0,0],'#4cc9f0',.75);lab('Phloem: food ↓',[1.9,0,0],'#ffa94d',.75)}]]},
-{n:'Excretion',N:['Nephron is the filtering unit of the kidney (about a million per kidney)','Glomerulus filters blood → tubule reabsorbs useful substances → urine collects','Dialysis (artificial kidney) is used when kidneys fail'],v:[['','Filtration in the glomerulus, reabsorption along the tubule, urine out through the collecting duct.',()=>{const P=[[-1.4,.9,0],[-1,.2,0],[-1.3,-.4,0],[-.6,-.8,0],[-.2,-1.8,0],[.4,-1.8,0],[.6,-.8,0],[1.2,-.2,0],[1.6,.6,0],[1.9,.2,0],[1.8,-1.4,0],[1.8,-2.6,0]];tube(P,0x4cc9f0,.07);tube(P.map(p=>[p[0]+.2,p[1],.35]),0xe63946,.03,false,false);ball(.55,0xffe29a,[-1.6,1.3,0],{transparent:true,opacity:.5});ring(t=>[-1.6+.25*Math.cos(t),1.3+.25*Math.sin(t),.1],0xe63946,.05);lab('Glomerulus',[-1.6,2.1,0],'#e63946',.7);lab('Loop of Henle',[0,-2.4,0],'#fff',.7);lab('Collecting duct',[1.5,1.3,0],'#4cc9f0',.7);lab('Urine ↓',[1.8,-3,0],'#ffd166',.7)}]]}]},
-{n:'Social',i:'🌍',s:[
-{n:'History',N:['Tap a milestone to read cause → effect','Nationalism: Europe (1789–1871) and India (1919–1947)','Link: Rowlatt Act → Jallianwala Bagh → Non-Cooperation'],v:[['','Tap a milestone sphere to read its cause and effect.',()=>{const yy=i=>i%2?.5:-.5;[[1789,'French Revolution','Cause: heavy taxes, privileges of the nobility, Enlightenment ideas → Effect: liberty, equality and the nation-state idea spread across Europe.'],[1848,'Revolt of the Liberals','Cause: demand for constitutions and press freedom → Effect: limited reforms by monarchs; nationalism grew stronger.'],[1871,'Unification of Germany','Cause: Prussian leadership (Bismarck), army and wars → Effect: German Empire proclaimed.'],[1919,'Rowlatt Act → Jallianwala Bagh','Cause: wartime repression, Rowlatt Act → Effect: Amritsar massacre; Gandhi launched Non-Cooperation (1920–22).'],[1930,'Civil Disobedience','Cause: Simon Commission, demand for Purna Swaraj → Effect: Salt March (Dandi), mass law-breaking.'],[1947,'Independence','Cause: Quit India (1942), mass movements, weakened Britain → Effect: India free, but Partition.']].forEach(([y,t,x],i)=>{const px=-2.5+i,c=PL[i];if(i)rod([px-1,yy(i-1),0],[px,yy(i),0],0x4a5a8a,.04);node(ball(.3,c,[px,yy(i),0],{emissive:c,emissiveIntensity:.35}),t+' ('+y+')',x);lab(''+y,[px,i%2?1.2:-1.2,0],hx(c),.6)})}]]},
-{n:'Geography',N:['Tap markers: minerals, soil, farming, forests, water, industry','Conserve soil, water, forests and minerals (resources are limited)','Agriculture and industries are linked through raw materials'],v:[['','Tap a marker on the globe (India) to read about resources and conservation.',()=>{G.rotation.y=-80*T/180;ball(2.38,0x0b1636,[0,0,0]);add(new THREE.Mesh(new THREE.SphereGeometry(2.4,20,14),new THREE.MeshBasicMaterial({color:0x4cc9f0,wireframe:true,transparent:true,opacity:.28})));[[23.6,85.3,'Coal & minerals','Jharkhand–Odisha belt: coal and iron ore. Non-renewable, so use them sustainably.',0x9aa6d0],[19,76,'Black soil','Deccan Plateau: regur soil holds moisture, ideal for cotton.',0xc9a66b],[31,75.3,'Agriculture','Punjab–Haryana: wheat (rabi crop), irrigation, Green Revolution.',0xffd166],[12,75.5,'Forests','Western Ghats: biodiversity hotspot; forest and wildlife conservation.',0x2ecc71],[26.5,73,'Water conservation','Rajasthan: rainwater harvesting (tankas); multipurpose river projects.',0x4cc9f0],[19,72.8,'Industries','Mumbai: cotton textiles, petrochemicals; agro-based and mineral-based industries.',0xff6b81]].forEach(([a,o,t,x,c])=>node(ball(.14,c,ll(a,o,2.45),{emissive:c}),t,x))}]]},
-{n:'Civics',N:['Power sharing reduces conflict (Belgium vs Sri Lanka)','Federalism: Union, State and Concurrent lists; three-tier government','Democracy needs free elections, rights, rule of law and accountability'],v:[['','Tap a node to read how each pillar supports democracy.',()=>{ball(.6,0xffd166,[0,0,0],{emissive:0xffd166,emissiveIntensity:.4});lab('Democracy',[0,-.95,0],'#ffd166');[['Power sharing','Belgium shares power among communities (accommodation); Sri Lanka’s majoritarianism fuelled conflict. Power is shared horizontally, vertically and among social groups.'],['Federalism','Power is divided between Union and States (Union, State, Concurrent lists); local government is the third tier.'],['Free elections','Competition between parties makes leaders accountable to voters.'],['Rights','Fundamental rights protect citizens and are enforceable in court.'],['Rule of law','Everyone, including the government, is bound by law; courts are independent.']].forEach(([t,x],i)=>{const a=i*2*T/5,p=[2.2*Math.cos(a),(i%2?.8:-.5),2.2*Math.sin(a)];rod([0,0,0],p,0x4a5a8a,.03);node(ball(.4,PL[i],p,{emissive:PL[i],emissiveIntensity:.35}),t,x);lab(t,[p[0],p[1]-.7,p[2]],hx(PL[i]),.65)})}]]},
-{n:'Economics',N:['Sectors: primary (agriculture), secondary (industry), tertiary (services)','Development indicators: income, literacy, life expectancy, IMR, HDI','Money and credit: formal vs informal; RBI regulates banks'],v:[['','Tap a bar or object to read the concept (sector shares are approximate).',()=>{[['Primary','About 18% of GDP: agriculture, mining, fishing; still employs many people.',1.2],['Secondary','About 28% of GDP: manufacturing and construction.',1.9],['Tertiary','About 54% of GDP: services such as banking, transport, IT.',3.4]].forEach(([n,x,h],i)=>{node(box(.8,h,.8,PL[i],[-2+i*1.2,h/2-1.6,0]),n+' sector',x);lab(n,[-2+i*1.2,-2,0],hx(PL[i]),.55)});const c=add(new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,.14,20),M(0xffd166,{emissive:0x553d00})),[2,1,0]);c.rotation.x=T/2;node(c,'Money & credit','Money is a medium of exchange; formal credit (banks, RBI-supervised) is safer than informal (moneylenders); self-help groups help the poor.');lab('Money & credit',[2,.2,0],'#ffd166',.55);node(ball(.4,0x7dffb0,[2,-.8,0],{emissive:0x1a5a3a}),'Development indicators','Per capita income, literacy, life expectancy, infant mortality and HDI measure development; compare states such as Kerala and Bihar.');lab('Development',[2,-1.5,0],'#7dffb0',.55)}]]}]}
-];
+<header class="top glass">
+  <div class="brand">
+    <div class="mark" aria-hidden="true"></div>
+    <div>
+      <h1>Class 10 Smart Explorer</h1>
+      <p id="chapter">Interactive 3D science & social studies</p>
+    </div>
+  </div>
+  <div class="tools">
+    <button class="btn" id="autoBtn" aria-pressed="false" title="Auto-rotate (A)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+      <span class="lbl">Auto-Rotate</span>
+    </button>
+    <button class="btn" id="resetBtn" title="Reset view (R)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      <span class="lbl">Reset View</span>
+    </button>
+  </div>
+</header>
 
-let mi=0,si=0,vi=0;
-function row(el,items,cur,fn){el.innerHTML='';items.forEach((t,i)=>{const b=document.createElement('button');b.textContent=t;b.className=i==cur?'on':'';b.onclick=()=>fn(i);el.appendChild(b)})}
-function go(){const m=D[mi],s=m.s[si],v=s.v[vi];
-row($('#nav'),D.map(x=>x.i+' '+x.n),mi,i=>{mi=i;si=0;vi=0;go()});
-row($('#subs'),m.s.map(x=>x.n),si,i=>{si=i;vi=0;go()});
-row($('#vars'),s.v.length>1?s.v.map(x=>x[0]):[],vi,i=>{vi=i;go()});
-if(G){S.remove(G);G.traverse(o=>{o.geometry&&o.geometry!==SG&&o.geometry.dispose()})}
-G=new THREE.Group();S.add(G);nodes=[];v[2]();
-$('#it').textContent=s.n+(v[0]?' — '+v[0]:'');$('#id').textContent=v[1];
-$('#notes').innerHTML=s.N.map(x=>'<li>'+x+'</li>').join('');
-gsap.from(G.scale,{x:.1,y:.1,z:.1,duration:.5,ease:'back.out(1.4)'})}
-const dist=()=>9+Math.max(0,1-innerWidth/innerHeight)*7;
-function view(t){gsap.to(C.position,{x:0,y:1.2,z:dist(),duration:t,onUpdate:()=>O.update()});O.target.set(0,-.5,0)}
-$('#ar').onclick=e=>{O.autoRotate=!O.autoRotate;e.target.classList.toggle('on',O.autoRotate)};
-$('#rv').onclick=()=>view(.8);
-$('#nt').onclick=e=>{const n=$('#notes');n.hidden=!n.hidden;e.target.classList.toggle('on',!n.hidden)};
-const RC=new THREE.Raycaster(),mp=new THREE.Vector2();let dn;
-R.domElement.addEventListener('pointerdown',e=>dn=[e.clientX,e.clientY]);
-R.domElement.addEventListener('pointerup',e=>{if(!dn||Math.hypot(e.clientX-dn[0],e.clientY-dn[1])>6)return;mp.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);RC.setFromCamera(mp,C);const h=RC.intersectObjects(nodes,false)[0];if(!h)return;const u=h.object.userData;$('#it').textContent=u.t;$('#id').textContent=u.x;nodes.forEach(n=>gsap.to(n.scale,{x:n.userData.s.x,y:n.userData.s.y,z:n.userData.s.z,duration:.2}));gsap.to(h.object.scale,{x:u.s.x*1.5,y:u.s.y*1.5,z:u.s.z*1.5,duration:.3})});
-function fit(){R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()}
-addEventListener('resize',fit);fit();C.position.set(0,1.2,dist());O.target.set(0,-.5,0);go();
-(function loop(){requestAnimationFrame(loop);O.update();R.render(S,C)})();
-</script></body></html>
+<div id="topics">
+  <div class="chips glass" id="topicChips" role="group" aria-label="Topics"></div>
+  <div class="chips small glass" id="variantChips" role="group" aria-label="Views"></div>
+</div>
+
+<aside id="info" class="glass" aria-live="polite">
+  <div class="info-head">
+    <span class="tag" id="subjTag"></span>
+    <button class="icon-btn" id="collapseBtn" aria-label="Collapse info panel" aria-expanded="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+  </div>
+  <h2 id="infoTitle"></h2>
+  <div class="info-body">
+    <p class="desc" id="infoDesc"></p>
+    <ul id="legend"></ul>
+    <div id="detail" hidden></div>
+    <p class="hint-inline" id="tapHint" hidden>Tip: tap glowing objects in the scene for details.</p>
+    <div id="extra"></div>
+    <button class="btn notes-btn" id="notesBtn" aria-pressed="false" aria-controls="notes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+      <span>Simple Notes</span>
+    </button>
+  </div>
+</aside>
+
+<aside id="notes" class="glass" aria-hidden="true" aria-labelledby="notesTitle">
+  <div class="info-head">
+    <h3 id="notesTitle">Simple Notes</h3>
+    <button class="btn" id="notesClose" aria-label="Close notes" style="padding:6px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <p class="sub" id="notesSub"></p>
+  <ol id="notesList"></ol>
+  <p class="tip">Exam tip: write points in this order and underline key terms.</p>
+</aside>
+
+<nav class="subjects glass" id="subjNav" aria-label="Subjects"></nav>
+<div id="hint" class="glass">Drag to rotate · Scroll / pinch to zoom · Tap objects for details</div>
+<div id="credit">Created by V. Sai Varshith – Class 10</div>
+
+<script src="./notes-data.js"></script>
+<script src="./extras.js"></script>
+<script src="./physics.js"></script>
+<script src="./chemistry.js"></script>
+<script src="./biology.js"></script>
+<script src="./social.js"></script>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+const gsap = window.gsap;
+const $ = (id) => document.getElementById(id);
+
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) { this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r); this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r); this.arcTo(x, y, x + w, y, r); this.closePath(); };
+}
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0xF7F3EB);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+$('stage').appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0xF7F3EB, 0.012);
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 200);
+camera.position.set(0, 3, 12);
+const controls = new OrbitControls(camera, renderer.domElement);
+Object.assign(controls, { enableDamping: true, dampingFactor: 0.08, minDistance: 2.5, maxDistance: 40, autoRotateSpeed: 1.2, rotateSpeed: 0.8 });
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd6cebf, 1.25));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(5, 8, 6); scene.add(sun);
+const rim = new THREE.PointLight(0xD95D13, 18, 40); rim.position.set(-7, 3, -5); scene.add(rim);
+
+{
+  const n = 700, p = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) { const v = new THREE.Vector3().randomDirection().multiplyScalar(40 + Math.random() * 40); p.set([v.x, v.y, v.z], i * 3); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3));
+  var stars = new THREE.Points(g, new THREE.PointsMaterial({ color: 0x8fb3ff, size: 0.18, transparent: true, opacity: 0.7, fog: false }));
+  scene.add(stars); stars.visible = false;
+}
+
+const root = new THREE.Group(); scene.add(root);
+let updaters = [], clickables = [], tweens = [];
+const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
+const Y = V(0, 1, 0);
+const add = (o, parent) => { (parent || root).add(o); return o; };
+const upd = (fn) => updaters.push(fn);
+
+// Light-theme colour mapping: cyan/sky accents -> burnt orange, very light colours -> charcoal, bright colours darkened.
+const _tc = new THREE.Color(), _hsl = {};
+function tone(hex) {
+  _tc.set(hex); _tc.getHSL(_hsl);
+  const hue = _hsl.h * 360;
+  if (_hsl.s > 0.35 && hue >= 180 && hue <= 205) return '#CC5500';
+  if (_hsl.l > 0.78 && _hsl.s < 0.45) return '#4A4843';
+  if (_hsl.l > 0.45) _tc.setHSL(_hsl.h, _hsl.s, 0.45);
+  return '#' + _tc.getHexString();
+}
+const matCache = new Map();
+function mat(color, o = {}) {
+  color = tone(color);
+  const key = color + '|' + [o.rough, o.metal, o.glow, o.opacity, o.side].join(',');
+  if (matCache.has(key)) return matCache.get(key);
+  const tr = o.opacity !== undefined;
+  const m = new THREE.MeshStandardMaterial({ color, roughness: o.rough ?? 0.45, metalness: o.metal ?? 0.1, emissive: o.glow ? color : 0x000000, emissiveIntensity: o.glow ?? 0, transparent: tr, opacity: o.opacity ?? 1, side: o.side ?? THREE.FrontSide, depthWrite: !tr || o.opacity > 0.6 });
+  m.userData.cached = true; matCache.set(key, m); return m;
+}
+function group(parent) { return add(new THREE.Group(), parent); }
+function sphere(r, color, p, o = {}, parent) { const s = o.seg ?? 20; const m = new THREE.Mesh(new THREE.SphereGeometry(r, s, Math.round(s * 0.7)), mat(color, o)); m.position.copy(p); return add(m, parent); }
+function box(w, h, d, color, p, o = {}, parent) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color, o)); m.position.copy(p); return add(m, parent); }
+function cyl(a, b, r, color, o = {}, parent) {
+  const dir = b.clone().sub(a), len = dir.length();
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, o.seg ?? 10), mat(color, o));
+  m.position.copy(a).addScaledVector(dir, 0.5); m.quaternion.setFromUnitVectors(Y, dir.normalize()); return add(m, parent);
+}
+function cone(p, dir, color, size = 0.18, o = {}, parent) {
+  const m = new THREE.Mesh(new THREE.ConeGeometry(size * 0.55, size * 1.4, 10), mat(color, { glow: 0.6, ...o }));
+  m.position.copy(p); m.quaternion.setFromUnitVectors(Y, dir.clone().normalize()); return add(m, parent);
+}
+function arrow(from, to, color, r = 0.05, parent) {
+  const dir = to.clone().sub(from), len = dir.length(), u = dir.clone().normalize(), head = Math.min(0.4, len * 0.3);
+  const end = from.clone().addScaledVector(u, len - head);
+  cyl(from, end, r, color, { glow: 0.5 }, parent);
+  return cone(end.clone().addScaledVector(u, head * 0.5), u, color, head / 1.4, {}, parent);
+}
+function tube(points, r, color, mo = {}, to = {}, parent) {
+  const curve = new THREE.CatmullRomCurve3(points, to.closed ?? false, 'catmullrom', to.tension ?? 0.5);
+  const m = new THREE.Mesh(new THREE.TubeGeometry(curve, to.seg ?? 64, r, to.radial ?? 6, to.closed ?? false), mat(color, mo));
+  m.userData.curve = curve; return add(m, parent);
+}
+function flow(curve, n, color, ws = 1, size = 0.06, parent, o = {}) {
+  const geo = o.geo ? o.geo.clone() : new THREE.SphereGeometry(size, 8, 6);
+  const im = new THREE.InstancedMesh(geo, mat(color, { glow: 1.2 }), n); add(im, parent);
+  const len = Math.max(0.01, curve.getLength()), d = new THREE.Object3D();
+  upd((t) => { for (let i = 0; i < n; i++) { const u = (i / n + (t * ws) / len) % 1; curve.getPointAt(u, d.position); d.updateMatrix(); im.setMatrixAt(i, d.matrix); } im.instanceMatrix.needsUpdate = true; });
+  return im;
+}
+const glowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,.4)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); const t = new THREE.CanvasTexture(c); t.userData.keep = true; return t; })();
+function glow(p, color, s = 1, parent) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: tone(color), opacity: 0.35, depthWrite: false, transparent: true, fog: false })); sp.position.copy(p); sp.scale.setScalar(s); return add(sp, parent); }
+function label(text, p, o = {}, parent) {
+  const lines = String(text).split('\n'), fs = 44, pad = 18;
+  const c = document.createElement('canvas'), g = c.getContext('2d');
+  const font = `600 ${fs}px Geist, system-ui, sans-serif`; g.font = font;
+  const w = Math.ceil(Math.max(...lines.map((l) => g.measureText(l).width))) + pad * 2, h = Math.ceil(lines.length * fs * 1.2 + pad * 1.2);
+  c.width = w; c.height = h;
+  if (o.bg !== false) { g.fillStyle = 'rgba(247,243,235,.96)'; g.beginPath(); g.roundRect(2, 2, w - 4, h - 4, 20); g.fill(); g.strokeStyle = tone(o.color || '#7dd3fc'); g.globalAlpha = 0.85; g.lineWidth = 3; g.stroke(); g.globalAlpha = 1; }
+  g.font = font; g.fillStyle = o.textColor || (o.bg === false ? '#F7F3EB' : '#141413'); g.textAlign = 'center'; g.textBaseline = 'middle';
+  lines.forEach((l, i) => g.fillText(l, w / 2, pad * 0.6 + fs * 0.6 + i * fs * 1.2));
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true, fog: false }));
+  const k = (o.size ?? 0.3) / (fs * 1.2) * 1.25; sp.scale.set(w * k, h * k, 1); sp.renderOrder = 10; sp.position.copy(p);
+  return add(sp, parent);
+}
+function wrap(g, text, max) { const words = String(text).split(' '); const out = []; let line = ''; for (const w of words) { const t = line ? line + ' ' + w : w; if (g.measureText(t).width > max && line) { out.push(line); line = w; } else line = t; } if (line) out.push(line); return out; }
+function card(o, p, parent) {
+  const W = 520, pad = 28, c = document.createElement('canvas'), g = c.getContext('2d');
+  const tf = '650 38px Geist, system-ui, sans-serif', bf = '400 28px Geist, system-ui, sans-serif', kf = '700 24px Geist, system-ui, sans-serif';
+  g.font = tf; const tl = o.title ? wrap(g, o.title, W - pad * 2) : []; g.font = bf; const bl = o.body ? wrap(g, o.body, W - pad * 2) : [];
+  const H = Math.ceil(pad + (o.kicker ? 36 : 0) + tl.length * 46 + (bl.length && tl.length ? 8 : 0) + bl.length * 36 + pad - 6);
+  c.width = W; c.height = H;
+  const grd = g.createLinearGradient(0, 0, 0, H); grd.addColorStop(0, 'rgba(247,243,235,.98)'); grd.addColorStop(1, 'rgba(239,233,221,.98)');
+  g.fillStyle = grd; g.beginPath(); g.roundRect(3, 3, W - 6, H - 6, 24); g.fill(); g.strokeStyle = tone(o.color); g.lineWidth = 4; g.stroke();
+  let y = pad;
+  if (o.kicker) { g.font = kf; g.fillStyle = tone(o.color); g.textBaseline = 'top'; g.fillText(o.kicker, pad, y); y += 36; }
+  g.textBaseline = 'top'; g.font = tf; g.fillStyle = '#141413'; tl.forEach((l) => { g.fillText(l, pad, y); y += 46; });
+  if (bl.length && tl.length) y += 8;
+  g.font = bf; g.fillStyle = '#4A4843'; bl.forEach((l) => { g.fillText(l, pad, y); y += 36; });
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const w = o.w ?? 2.4;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, (w * H) / W), new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, fog: false }));
+  m.position.copy(p); add(m, parent);
+  if (o.billboard) upd(() => m.quaternion.copy(camera.quaternion));
+  return m;
+}
+function clickable(o, info) { o.userData.info = info; clickables.push(o); return o; }
+function compass(p, s = 1, parent) {
+  const g = group(parent); g.position.copy(p);
+  const nd = new THREE.Group(); g.add(nd);
+  const n = new THREE.Mesh(new THREE.ConeGeometry(0.07 * s, 0.32 * s, 8), mat('#ef4444', { glow: 0.5 })); n.rotation.z = -Math.PI / 2; n.position.x = 0.16 * s; nd.add(n);
+  const sm = new THREE.Mesh(new THREE.ConeGeometry(0.07 * s, 0.32 * s, 8), mat('#e2e8f0')); sm.rotation.z = Math.PI / 2; sm.position.x = -0.16 * s; nd.add(sm);
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(0.38 * s, 14, 10), mat('#93c5fd', { opacity: 0.12 })));
+  g.point = (dir) => nd.quaternion.setFromUnitVectors(V(1, 0, 0), dir.clone().normalize());
+  return g;
+}
+function fieldAt(p, qx) { const a = p.clone().sub(V(qx, 0, 0)), b = p.clone().sub(V(-qx, 0, 0)); return a.multiplyScalar(1 / Math.pow(a.length(), 3)).sub(b.multiplyScalar(1 / Math.pow(b.length(), 3))); }
+function traceDipole(qx, r0, deg) {
+  const a = (deg * Math.PI) / 180, p = V(qx + r0 * Math.cos(a), r0 * Math.sin(a), 0), qn = V(-qx, 0, 0), pts = [p.clone()];
+  for (let i = 0; i < 2500; i++) { p.addScaledVector(fieldAt(p, qx).normalize(), 0.04); if (i % 5 === 0) pts.push(p.clone()); if (p.distanceTo(qn) < r0) { pts.push(p.clone()); break; } if (p.length() > 16) break; }
+  return pts;
+}
+function dipoleLines(qx, r0, alphas, phis, color, parent) {
+  for (const al of alphas) {
+    const base = traceDipole(qx, r0, al);
+    for (const ph of phis) {
+      const pts = base.map((q) => V(q.x, q.y * Math.cos(ph), q.y * Math.sin(ph)));
+      const m = tube(pts, 0.02, color, { glow: 0.5 }, { seg: 90, radial: 4 }, parent);
+      const c = m.userData.curve;
+      cone(c.getPointAt(0.5), c.getTangentAt(0.5), color, 0.18, {}, parent);
+      flow(c, 3, '#e0f2fe', 0.9, 0.04, parent);
+    }
+  }
+}
+const EL = { C: ['#64748b', 0.34], H: ['#f1f5f9', 0.2], O: ['#ef4444', 0.3], N: ['#3b82f6', 0.3], Cl: ['#22c55e', 0.32] };
+function molecule(atoms, bonds, parent, o = {}) {
+  const g = group(parent); const dots = [];
+  atoms.forEach((a) => { const [c, r] = EL[a.el]; sphere(r, c, a.p, { rough: 0.3, metal: 0.1, seg: 24 }, g); if (o.labels !== false) label(a.el, a.p, { size: 0.15, color: c }, g); });
+  bonds.forEach(([i, j, k = 1]) => {
+    const a = atoms[i].p, b = atoms[j].p, dir = b.clone().sub(a), len = dir.length();
+    const bg = new THREE.Group(); bg.position.copy(a).addScaledVector(dir, 0.5); bg.quaternion.setFromUnitVectors(Y, dir.normalize()); g.add(bg);
+    for (let n = 0; n < k; n++) {
+      const off = (n - (k - 1) / 2) * 0.16;
+      const cm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, len, 8), mat('#cbd5e1', { rough: 0.3, metal: 0.3 })); cm.position.x = off; bg.add(cm);
+      if (o.electrons !== false) for (const z of [-0.1, 0.1]) { const d = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), mat('#facc15', { glow: 1.3 })); d.position.set(off, 0, z); bg.add(d); dots.push(d); }
+    }
+  });
+  if (dots.length) upd((t) => dots.forEach((d, i) => { d.position.y = 0.07 * Math.sin(t * 2.5 + i * 1.3); }));
+  return g;
+}
+function atomsInst(pts, r, color, o = {}, parent) { const im = new THREE.InstancedMesh(new THREE.SphereGeometry(r, 14, 10), mat(color, o), pts.length); const d = new THREE.Object3D(); pts.forEach((p, i) => { d.position.copy(p); d.updateMatrix(); im.setMatrixAt(i, d.matrix); }); return add(im, parent); }
+function bondsInst(pairs, r, color, o = {}, parent) {
+  const im = new THREE.InstancedMesh(new THREE.CylinderGeometry(r, r, 1, 6, 1, true), mat(color, o), Math.max(1, pairs.length)); const d = new THREE.Object3D();
+  pairs.forEach(([a, b], i) => { const dir = b.clone().sub(a), len = dir.length(); d.position.copy(a).addScaledVector(dir, 0.5); d.quaternion.setFromUnitVectors(Y, dir.normalize()); d.scale.set(1, len, 1); d.updateMatrix(); im.setMatrixAt(i, d.matrix); });
+  im.count = pairs.length; return add(im, parent);
+}
+function findBonds(pts, dist, tol = 0.08) { const out = []; for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) if (Math.abs(pts[i].distanceTo(pts[j]) - dist) < dist * tol) out.push([i, j]); return out; }
+function leaf(len, wid, color) {
+  const s = new THREE.Shape(); s.moveTo(0, 0); s.bezierCurveTo(wid, len * 0.25, wid * 0.9, len * 0.75, 0, len); s.bezierCurveTo(-wid * 0.9, len * 0.75, -wid, len * 0.25, 0, 0);
+  const m = new THREE.Mesh(new THREE.ExtrudeGeometry(s, { depth: 0.04, bevelEnabled: false, curveSegments: 14 }), mat(color, { rough: 0.6, side: THREE.DoubleSide, glow: 0.12 }));
+  const rib = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, len * 0.95, 6), mat('#bbf7d0')); rib.position.set(0, len * 0.48, 0.05); m.add(rib);
+  return m;
+}
+function nodeBox(text, color, p, o = {}, parent) {
+  const g = group(parent); g.position.copy(p);
+  const w = o.w ?? 2.6, h = o.h ?? 0.8;
+  let m;
+  if (o.shape === 'capsule') { m = new THREE.Mesh(new THREE.CapsuleGeometry(h / 2, w - h, 6, 16), mat(color, { glow: 0.35, rough: 0.3 })); m.rotation.z = Math.PI / 2; m.scale.z = 0.4; }
+  else m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.3), mat(color, { glow: 0.35, rough: 0.3 }));
+  g.add(m); label(text, V(0, 0, 0.35), { size: o.size ?? 0.19, bg: false }, g); return g;
+}
+function link(a, b, color, o = {}, parent) {
+  const mid = a.clone().lerp(b, 0.5).add(o.bend ?? V());
+  const m = tube([a, mid, b], o.r ?? 0.03, color, { glow: 0.6 }, { seg: 30, radial: 5 }, parent);
+  const c = m.userData.curve;
+  cone(c.getPointAt(0.92), c.getTangentAt(0.92), color, 0.2, {}, parent);
+  if (o.flow !== false) flow(c, o.n ?? 4, o.dot ?? '#ffffff', o.speed ?? 1.2, 0.05, parent);
+  return c;
+}
+function dashed(pts, color, parent) { const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color, dashSize: 0.12, gapSize: 0.1, transparent: true, opacity: 0.8 })); l.computeLineDistances(); return add(l, parent); }
+const tween = (t) => (tweens.push(t), t);
+
+const H = { THREE, V, mat, group, sphere, box, cyl, cone, arrow, tube, flow, glow, label, card, clickable, upd, compass, fieldAt, dipoleLines, molecule, atomsInst, bondsInst, findBonds, leaf, nodeBox, link, dashed, tween, gsap, camera };
+const ICONS = {
+  physics: '<path d="M6 3v8a6 6 0 0 0 12 0V3"/><path d="M6 7h4M14 7h4"/>',
+  chemistry: '<path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/><path d="M7 15h10"/>',
+  biology: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10Z"/><path d="M2 21c0-3 1.9-5.4 5.1-6"/>',
+  social: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
+};
+const KEYS = ['physics', 'chemistry', 'biology', 'social'];
+const SUBJ = {}; KEYS.forEach((k) => { SUBJ[k] = window.MODULES[k](H); });
+const state = { subj: 'physics', topic: 0, variant: 0, notes: false };
+window.SEL_SUBJ = SUBJ; window.SEL_STATE = state;
+
+function dispose() {
+  tweens.forEach((t) => t.kill()); tweens = [];
+  root.traverse((o) => {
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => { if (m.map && !m.map.userData.keep) m.map.dispose(); if (!m.userData.cached) m.dispose(); });
+  });
+  root.clear(); updaters = []; clickables = [];
+}
+const cur = () => { const s = SUBJ[state.subj], t = s.topics[state.topic]; return { s, t, v: t.variants[state.variant] }; };
+const distFactor = () => { const a = innerWidth / innerHeight; return a < 1 ? Math.min(2.3, 0.95 / a) : a < 1.3 ? 1.15 : 1; };
+
+function resetView(dur = 1.1) {
+  const { v } = cur(), f = distFactor(), c = v.cam || [0, 2, 11], tg = v.target || [0, 0, 0];
+  gsap.to(camera.position, { x: tg[0] + (c[0] - tg[0]) * f, y: tg[1] + (c[1] - tg[1]) * f, z: tg[2] + (c[2] - tg[2]) * f, duration: dur, ease: 'power2.inOut' });
+  gsap.to(controls.target, { x: tg[0], y: tg[1], z: tg[2], duration: dur, ease: 'power2.inOut' });
+}
+let viewStart = 0, building = false;
+const clock = new THREE.Clock();
+function show(first) {
+  const { s, t, v } = cur();
+  document.documentElement.style.setProperty('--accent', '#CC5500');
+  renderUI();
+  const go = () => {
+    dispose();
+    root.rotation.set(0, 0, 0);
+    try { v.build(); } catch (e) { console.error('[explorer] build failed', e); }
+    viewStart = clock.elapsedTime;
+    root.scale.setScalar(0.55);
+    gsap.to(root.scale, { x: 1, y: 1, z: 1, duration: 0.7, ease: 'back.out(1.5)' });
+    $('tapHint').hidden = clickables.length === 0;
+    building = false;
+  };
+  resetView(first ? 0 : 1.1);
+  if (first) go();
+  else { building = true; gsap.killTweensOf(root.scale); gsap.to(root.scale, { x: 0.01, y: 0.01, z: 0.01, duration: 0.22, ease: 'power2.in', onComplete: go }); }
+  void t;
+}
+
+function renderUI() {
+  const { s, t, v } = cur();
+  $('subjNav').innerHTML = KEYS.map((k) => `<button class="subj" style="--c:#CC5500" data-k="${k}" aria-pressed="${k === state.subj}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg><span>${SUBJ[k].name}</span></button>`).join('');
+  $('topicChips').innerHTML = s.topics.map((tp, i) => `<button class="chip" data-i="${i}" aria-pressed="${i === state.topic}">${tp.label}</button>`).join('');
+  const vc = $('variantChips');
+  vc.style.display = t.variants.length > 1 ? 'flex' : 'none';
+  vc.innerHTML = t.variants.map((x, i) => `<button class="chip" data-i="${i}" aria-pressed="${i === state.variant}">${x.label}</button>`).join('');
+  $('chapter').textContent = `${s.name} · ${s.chapter}`;
+  $('subjTag').textContent = `${s.name} · ${t.label}`;
+  $('infoTitle').textContent = v.title;
+  $('infoDesc').textContent = v.desc;
+  $('legend').innerHTML = (v.legend || []).map(([c, l]) => `<li><i style="background:${c};color:${c}"></i>${l}</li>`).join('');
+  $('extra').innerHTML = v.extra || '';
+  $('detail').hidden = true;
+  $('notesSub').textContent = v.title;
+  $('notesList').innerHTML = (v.notes || []).map((n) => `<li>${n}</li>`).join('');
+  gsap.fromTo('#info .info-body, #infoTitle', { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.05 });
+  if (state.notes) gsap.fromTo('#notesList li', { opacity: 0, x: 10 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.04 });
+  const a = vc.querySelector('[aria-pressed="true"]') || $('topicChips').querySelector('[aria-pressed="true"]');
+  a && a.scrollIntoView({ block: 'nearest', inline: 'center' });
+  window.SEL_RENDER && window.SEL_RENDER(state);
+}
+
+$('subjNav').addEventListener('click', (e) => { const b = e.target.closest('.subj'); if (!b || b.dataset.k === state.subj) return; Object.assign(state, { subj: b.dataset.k, topic: 0, variant: 0 }); show(); });
+$('topicChips').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; const i = +b.dataset.i; if (i === state.topic) return; state.topic = i; state.variant = 0; show(); });
+$('variantChips').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (!b) return; const i = +b.dataset.i; if (i === state.variant) return; state.variant = i; show(); });
+const setAuto = (on) => { controls.autoRotate = on; $('autoBtn').setAttribute('aria-pressed', on); };
+$('autoBtn').onclick = () => setAuto(!controls.autoRotate);
+$('resetBtn').onclick = () => resetView();
+function setNotes(on) {
+  state.notes = on; $('notes').classList.toggle('open', on); $('notes').setAttribute('aria-hidden', !on); $('notesBtn').setAttribute('aria-pressed', on);
+  if (on) gsap.fromTo('#notesList li', { opacity: 0, x: 10 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.04, delay: 0.1 });
+  updateOffset();
+}
+$('notesBtn').onclick = () => setNotes(!state.notes);
+$('notesClose').onclick = () => setNotes(false);
+$('collapseBtn').onclick = () => { const c = $('info').classList.toggle('collapsed'); $('collapseBtn').setAttribute('aria-expanded', !c); updateOffset(); setTimeout(updateOffset, 350); };
+addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input,textarea')) return;
+  const k = e.key.toLowerCase();
+  if (k === 'a') setAuto(!controls.autoRotate); else if (k === 'r') resetView(); else if (k === 'n') setNotes(!state.notes);
+  else if (['1', '2', '3', '4'].includes(k)) { const s = KEYS[+k - 1]; if (s !== state.subj) { Object.assign(state, { subj: s, topic: 0, variant: 0 }); show(); } }
+});
+
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let down = null, lastHover = 0;
+function hit(e) {
+  const r = renderer.domElement.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hs = ray.intersectObjects(clickables, true);
+  for (const h of hs) { let o = h.object; while (o && !o.userData.info) o = o.parent; if (o) return o; }
+  return null;
+}
+renderer.domElement.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (!down) return; const d = Math.hypot(e.clientX - down[0], e.clientY - down[1]); down = null; if (d > 6) return;
+  const o = hit(e); if (!o) return;
+  const { title, body } = o.userData.info, det = $('detail');
+  det.innerHTML = `<h3></h3><p></p>`; det.querySelector('h3').textContent = title; det.querySelector('p').textContent = body; det.hidden = false;
+  $('info').classList.remove('collapsed');
+  det.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  gsap.fromTo(det, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.35 });
+  const b = o.userData.base || (o.userData.base = o.scale.clone());
+  gsap.fromTo(o.scale, { x: b.x * 1.18, y: b.y * 1.18, z: b.z * 1.18 }, { x: b.x, y: b.y, z: b.z, duration: 0.7, ease: 'elastic.out(1,0.5)' });
+});
+renderer.domElement.addEventListener('pointermove', (e) => {
+  if (e.pointerType !== 'mouse' || e.buttons) return;
+  const n = performance.now(); if (n - lastHover < 90) return; lastHover = n;
+  renderer.domElement.style.cursor = hit(e) ? 'pointer' : 'grab';
+});
+
+const vo = { x: 0, y: 0 };
+function applyVO() { camera.setViewOffset(innerWidth, innerHeight, vo.x, vo.y, innerWidth, innerHeight); }
+function updateOffset() {
+  const w = innerWidth, h = innerHeight, info = $('info'), notes = $('notes'), topics = $('topics'), nav = $('subjNav');
+  const top = topics.offsetTop + topics.offsetHeight;
+  let cx = w / 2, cy;
+  if (w < 760) { const bottom = state.notes ? notes.offsetTop : info.offsetTop; cy = (top + bottom) / 2; }
+  else { const left = info.offsetLeft + info.offsetWidth, right = state.notes ? notes.offsetLeft : w; cx = (left + right) / 2; cy = (top + nav.offsetTop) / 2; }
+  gsap.to(vo, { x: w / 2 - cx, y: h / 2 - cy, duration: 0.6, ease: 'power2.out', onUpdate: applyVO });
+}
+addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); applyVO(); updateOffset(); });
+
+function loop() {
+  requestAnimationFrame(loop);
+  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime - viewStart;
+  if (!building) for (const u of updaters) u(t, dt);
+  stars.rotation.y += dt * 0.004;
+  controls.update();
+  renderer.render(scene, camera);
+}
+show(true);
+requestAnimationFrame(() => { updateOffset(); applyVO(); });
+loop();
+const ld = $('loader'); ld.style.opacity = 0; setTimeout(() => ld.remove(), 650);
+setTimeout(() => { const h = $('hint'); if (h) gsap.to(h, { opacity: 0, duration: 0.8, onComplete: () => h.remove() }); }, 7000);
+</script>
+</body>
+</html>
